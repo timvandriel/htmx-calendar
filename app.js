@@ -120,21 +120,18 @@ app.get('/events/:id', (req, res) => {
     });
 });
 
-
-
 app.get('/events/:id/edit', (req, res) => {
     const event = mockEvents.find(e => e.id === req.params.id);
-
     if (!event) {
         return res.status(404).send('Event not found');
     }
-
     res.render('event-form', {
         title: 'Edit Event',
         event,
         isEdit: true
     });
 });
+
 
 // Add DELETE handler for events
 app.delete('/events/:id', (req, res) => {
@@ -205,6 +202,25 @@ app.get('/calendar/navigation', (req, res) => {
         monthName
     });
 });
+function parseLocalDate(dateStr) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day); // JS months are 0-indexed
+}
+
+app.get('/calendar/day-events', (req, res) => {
+    const dateString = req.query.date;
+    const date = parseLocalDate(dateString); // Use the new function
+
+    const matchingEvents = mockEvents.filter(event =>
+        isSameDay(new Date(event.startDate), date)
+    );
+
+    console.log(`Matching events for date ${dateString}`, matchingEvents);
+    res.render('partials/event-cards', { events: matchingEvents });
+});
+
+
+
 
 // Start server
 app.listen(PORT, () => {

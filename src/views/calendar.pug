@@ -40,15 +40,29 @@ block content
   div(id="calendar-view" hx-get="/calendar/view" hx-trigger="load" class="bg-white rounded-lg shadow-md overflow-hidden")
     // Calendar will be loaded here via HTMX
 
+    // Day events will appear here
+  div(id="day-events" class="mt-6")
+
 block scripts
   script.
-    // Listen for custom event when calendar is updated
+    // Update month label after calendar view loads
     document.body.addEventListener('htmx:afterSwap', function(event) {
       if (event.detail.target.id === 'calendar-view') {
-        // Update the current month display based on the data from the server
         const monthName = event.detail.xhr.getResponseHeader('X-Calendar-Month');
         if (monthName) {
           document.getElementById('current-month').textContent = monthName;
         }
+      }
+    });
+
+  script.
+    // Highlight the clicked day cell
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+      const clicked = event.target;
+      document.querySelectorAll('.calendar-container .selected').forEach(el => {
+        el.classList.remove('ring-2', 'ring-blue-500', 'selected');
+      });
+      if (clicked.classList.contains('min-h-16')) {
+        clicked.classList.add('ring-2', 'ring-blue-500', 'selected');
       }
     });
