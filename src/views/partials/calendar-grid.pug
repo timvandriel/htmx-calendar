@@ -1,0 +1,52 @@
+// Calendar month view
+.calendar-container
+  // Days of week header
+  .grid.grid-cols-7.text-center.bg-gray-100.font-semibold.py-2.border-b
+    .px-2 Sun
+    .px-2 Mon
+    .px-2 Tue
+    .px-2 Wed
+    .px-2 Thu
+    .px-2 Fri
+    .px-2 Sat
+
+  // Calendar days grid
+  .grid.grid-cols-7.auto-rows-fr.border-l.border-t
+    - const firstDay = new Date(year, month, 1).getDay()
+    - const daysInMonth = new Date(year, month + 1, 0).getDate()
+    - const prevMonthDays = new Date(year, month, 0).getDate()
+    
+    // Empty cells for days from previous month
+    - for (let i = 0; i < firstDay; i++)
+      .border-r.border-b.bg-gray-50.p-1.min-h-16
+        .text-gray-400.text-sm= prevMonthDays - firstDay + i + 1
+    
+    // Current month days
+    - for (let day = 1; day <= daysInMonth; day++)
+      - const currentDate = new Date(year, month, day)
+      - const isToday = isSameDay(currentDate, new Date())
+      - const dateEvents = events.filter(e => isSameDay(new Date(e.startDate), currentDate))
+      
+      .border-r.border-b.p-1.min-h-16(class=isToday ? 'bg-blue-50' : '')
+        .flex.justify-between
+          .font-medium(class=isToday ? 'text-blue-600' : '')= day
+          
+          if isToday
+            .text-xs.bg-blue-100.text-blue-800.px-1.rounded Today
+        
+        // Event indicators
+        if dateEvents.length > 0
+          .mt-1
+            each event in dateEvents.slice(0, 3)
+              .text-xs.truncate.rounded.px-1.my-1(class=`bg-${event.color || 'gray'}-100 text-${event.color || 'gray'}-800`)
+                a(href=`/events/${event.id}` hx-get=`/events/${event.id}` hx-target="#main-content" hx-push-url="true")
+                  = event.title
+            
+            if dateEvents.length > 3
+              .text-xs.text-gray-500.text-center +#{dateEvents.length - 3} more
+    
+    // Empty cells for days from next month
+    - const remainingCells = 42 - (firstDay + daysInMonth) // 6 rows of 7 days
+    - for (let i = 1; i <= remainingCells; i++)
+      .border-r.border-b.bg-gray-50.p-1.min-h-16
+        .text-gray-400.text-sm= i

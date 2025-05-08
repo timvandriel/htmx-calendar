@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  div(class="bg-white p-6 rounded shadow-md max-w-2xl mx-auto")
+    h2(class="text-2xl font-bold mb-2")= event.title
+    p(class="text-gray-600 mb-4")= formatDate(event.startDate)
+    if event.location
+      p(class="text-sm text-gray-500 mb-2")
+        i(class="fas fa-map-marker-alt mr-1")
+        | #{event.location}
+    p= event.description
+
+    // Get the Referer URL from the request headers to go back to the previous page
+    a(href=referer || '/calendar', class="mt-4 inline-block text-blue-500 hover:underline") ← Back

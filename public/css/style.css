@@ -1,0 +1,28 @@
+/* Calendar specific styles */
+.min-h-16 {
+    min-height: 4rem;
+}
+
+/* HTMX loading indicator */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}
+
+/* Make calendar cells grow to fill space */
+.calendar-container {
+    height: calc(100vh - 200px);
+    min-height: 500px;
+}
+
+.auto-rows-fr {
+    grid-auto-rows: 1fr;
+}
