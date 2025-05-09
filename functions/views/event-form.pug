@@ -1,0 +1,82 @@
+extends layout
+
+block content
+  h2(class="text-2xl font-bold mb-4 text-center") #{isEdit ? 'Edit Event' : 'Add New Event'}
+
+  form(method="POST", action=isEdit ? `/events/${event.id}` : '/events', class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 max-w-xl mx-auto space-y-4")
+    
+    // Title
+    .mb-4
+      label.block.text-gray-700.text-sm.font-bold.mb-2(for="title") Title
+      input#title(type="text", name="title", required, value=event.title || '', class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline")
+
+    // Description
+    .mb-4
+      label.block.text-gray-700.text-sm.font-bold.mb-2(for="description") Description
+      textarea#description(name="description", rows="4", class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline")= event.description || ''
+
+    // Start Date/Time
+    .mb-4
+      label.block.text-gray-700.text-sm.font-bold.mb-2(for="startDate") Start Date & Time
+      input#startDate(
+        type="datetime-local", 
+        name="startDate", 
+        required, 
+        value=event.startDate && !isNaN(new Date(event.startDate).getTime()) ? 
+          new Date(event.startDate).toISOString().slice(0,16) : '', 
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      )
+    // End Date/Time
+    .mb-4
+      label.block.text-gray-700.text-sm.font-bold.mb-2(for="endDate") End Date & Time
+      input#endDate(
+        type="datetime-local", 
+        name="endDate", 
+        value=event.endDate && !isNaN(new Date(event.endDate).getTime()) ? 
+          new Date(event.endDate).toISOString().slice(0,16) : '', 
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      )
+    // Location
+    .mb-4
+      label.block.text-gray-700.text-sm.font-bold.mb-2(for="location") Location
+      input#location(type="text", name="location", value=event.location || '', class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline")
+
+    // Color
+    .mb-4
+      label.block.text-gray-700.text-sm.font-bold.mb-2(for="color") Event Color
+      select#color(name="color", class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline")
+        option(value="gray" selected=event.color === 'gray') Gray
+        option(value="blue" selected=event.color === 'blue') Blue
+        option(value="red" selected=event.color === 'red') Red
+        option(value="green" selected=event.color === 'green') Green
+        option(value="yellow" selected=event.color === 'yellow') Yellow
+        option(value="purple" selected=event.color === 'purple') Purple
+
+    // Submit Button
+    .flex.items-center.justify-between
+      button(type="submit", class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline") #{isEdit ? 'Update Event' : 'Create Event'}
+
+      a(href="/", class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800") Cancel
+
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      form.addEventListener('submit', function(e) {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        
+        if (isNaN(startDate.getTime())) {
+          e.preventDefault();
+          alert('Please enter a valid start date');
+          return false;
+        }
+        
+        if (endDate < startDate) {
+          e.preventDefault();
+          alert('End date must be after start date');
+          return false;
+        }
+      });
+    });

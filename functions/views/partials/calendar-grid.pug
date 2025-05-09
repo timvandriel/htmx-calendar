@@ -1,0 +1,54 @@
+// Calendar month view
+.calendar-container
+  // Days of week header
+  .grid.grid-cols-7.text-center.bg-gray-100.font-semibold.py-2.border-b
+    .px-2 Sun
+    .px-2 Mon
+    .px-2 Tue
+    .px-2 Wed
+    .px-2 Thu
+    .px-2 Fri
+    .px-2 Sat
+
+  // Calendar days grid
+  .grid.grid-cols-7.auto-rows-fr.border-l.border-t
+    - var firstDay = new Date(year, month, 1).getDay()
+    - var daysInMonth = new Date(year, month + 1, 0).getDate()
+    - var prevMonthDays = new Date(year, month, 0).getDate()
+
+    // Empty cells for days from previous month
+    - for (var i = 0; i < firstDay; i++)
+      .border-r.border-b.bg-gray-50.p-1.min-h-16
+        .text-gray-400.text-sm= prevMonthDays - firstDay + i + 1
+
+    // Current month days
+    - for (var day = 1; day <= daysInMonth; day++)
+      - var currentDate = new Date(year, month, day)
+      - var isToday = isSameDay(currentDate, new Date())
+      - var dateEvents = events.filter(e => isSameDay(new Date(e.startDate), currentDate))
+
+      .border-r.border-b.p-1.min-h-16(
+        class=isToday ? 'bg-blue-50 cursor-pointer' : 'cursor-pointer',
+        hx-get=`/calendar/day-events?date=${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`,
+        hx-target="#day-events",
+        hx-indicator="#calendar-loader"
+      )
+        .flex.justify-between
+          .font-medium(class=isToday ? 'text-blue-600' : '')= day
+
+          if isToday
+            .text-xs.bg-blue-100.text-blue-800.px-1.rounded Today
+
+        // Colored circle as marker
+        if dateEvents.length > 0
+          .mt-2.flex.justify-center
+            span(class=`inline-block w-2 h-2 rounded-full bg-${dateEvents[0].color || 'gray'}-500`)
+
+        if dateEvents.length > 3
+          .text-xs.text-gray-500.text-center +#{dateEvents.length - 3} more
+
+    // Empty cells for days from next month
+    - var remainingCells = 42 - (firstDay + daysInMonth)
+    - for (var i = 1; i <= remainingCells; i++)
+      .border-r.border-b.bg-gray-50.p-1.min-h-16
+        .text-gray-400.text-sm= i

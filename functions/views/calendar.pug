@@ -1,0 +1,68 @@
+extends layout
+
+block content
+  .flex.justify-between.items-center.mb-6
+    a(href="/events/new" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded")
+      i(class="fas fa-plus mr-2")
+      | Add Event
+      
+    a(href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded")
+      i(class="fas fa-list mr-2")
+      | Upcoming Events
+  
+  h2(class="text-2xl font-bold mb-4 text-center") Calendar
+  
+  // Month navigation
+  .flex.justify-between.items-center.mb-4
+    button(
+      hx-get="/calendar/navigation?direction=prev" 
+      hx-target="#calendar-view"
+      hx-indicator="#calendar-loader"
+      class="bg-gray-200 hover:bg-gray-300 py-1 px-3 rounded")
+      i(class="fas fa-chevron-left mr-1")
+      | Previous
+      
+    h3(id="current-month" class="text-xl font-bold text-center") #{new Date().toLocaleDateString('en-US', {month: 'long', year: 'numeric'})}
+    
+    button(
+      hx-get="/calendar/navigation?direction=next" 
+      hx-target="#calendar-view"
+      hx-indicator="#calendar-loader"
+      class="bg-gray-200 hover:bg-gray-300 py-1 px-3 rounded")
+      | Next
+      i(class="fas fa-chevron-right ml-1")
+  
+  // Loading indicator for HTMX
+  div(id="calendar-loader" class="htmx-indicator text-center py-4")
+    div(class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500")
+  
+  // Calendar container
+  div(id="calendar-view" hx-get="/calendar/view" hx-trigger="load" class="bg-white rounded-lg shadow-md overflow-hidden")
+    // Calendar will be loaded here via HTMX
+
+    // Day events will appear here
+  div(id="day-events" class="mt-6")
+
+block scripts
+  script.
+    // Update month label after calendar view loads
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+      if (event.detail.target.id === 'calendar-view') {
+        const monthName = event.detail.xhr.getResponseHeader('X-Calendar-Month');
+        if (monthName) {
+          document.getElementById('current-month').textContent = monthName;
+        }
+      }
+    });
+
+  script.
+    // Highlight the clicked day cell
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+      const clicked = event.target;
+      document.querySelectorAll('.calendar-container .selected').forEach(el => {
+        el.classList.remove('ring-2', 'ring-blue-500', 'selected');
+      });
+      if (clicked.classList.contains('min-h-16')) {
+        clicked.classList.add('ring-2', 'ring-blue-500', 'selected');
+      }
+    });
