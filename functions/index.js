@@ -7,6 +7,7 @@ const admin = require('firebase-admin');
 const methodOverride = require('method-override');
 const { onRequest } = require("firebase-functions/v2/https");
 const fs = require('fs');
+const fetch = require('node-fetch');
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -28,14 +29,13 @@ const isSameDay = (date1, date2) => {
         date1.getDate() === date2.getDate();
 };
 
-// Track current view state (could be improved with sessions in a real app)
+// Track current view state
 let currentCalendarView = {
     month: new Date().getMonth(),
     year: new Date().getFullYear()
 };
 
-// IMPORTANT: Updated paths for Firebase Functions deployment
-// Determine the views directory path for different environments
+// Set up view engine
 let viewsPath = path.join(__dirname, 'views');
 // For local development, the views folder might be directly in functions
 if (!fs.existsSync(viewsPath)) {
@@ -53,8 +53,6 @@ app.set('view engine', 'pug');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
-// IMPORTANT: Updated static files path
-// For local development vs. deployed environment
 let publicPath = path.join(__dirname, 'public');
 if (!fs.existsSync(publicPath)) {
     console.log('[DEBUG] Public directory not found at', publicPath);
@@ -409,6 +407,60 @@ app.get('/calendar/day-events', async (req, res) => {
         res.status(500).send(`Server error: ${error.message}`);
     }
 });
+// Route to fetch holidays for a selected day
+app.get('/calendar/holidays', async (req, res) => {
+    try {
+        const dateString = req.query.date;  // Date passed from the calendar grid (e.g., 2025-05-09)
+        const date = new Date(dateString);
+        const dateKey = date.toISOString().split('T')[0]; // Use YYYY-MM-DD format to match the holiday document IDs
+
+        // Fetch holidays for the specific date
+        const holidaySnapshot = await db.collection('holidays').doc(dateKey).get();
+
+        if (holidaySnapshot.exists) {
+            const holidayData = holidaySnapshot.data();
+            res.render('partials/holiday-cards', { holidays: [holidayData] });
+        } else {
+            // If no holidays for that date, render nothing
+            res.render('partials/holiday-cards', { holidays: [] });
+        }
+    } catch (error) {
+        console.error('Error fetching holidays:', error);
+        res.status(500).send('Failed to fetch holidays.');
+    }
+});
+
+
+app.get('/import-holidays', async (req, res) => {
+    try {
+        const response = await fetch('https://date.nager.at/api/v3/NextPublicHolidays/US');
+        const holidays = await response.json();
+
+        const batch = db.batch();
+
+        holidays.forEach(holiday => {
+            const docRef = db.collection('holidays').doc(holiday.date); // use date as doc ID
+            batch.set(docRef, {
+                name: holiday.name,
+                localName: holiday.localName,
+                date: holiday.date,
+                global: holiday.global,
+                countryCode: holiday.countryCode,
+                counties: holiday.counties || [],
+                types: holiday.types,
+                launchYear: holiday.launchYear || null
+            });
+        });
+
+        await batch.commit();
+        res.send(`Successfully imported ${holidays.length} holidays.`);
+    } catch (err) {
+        console.error('Error importing holidays:', err);
+        res.status(500).send('Failed to import holidays.');
+    }
+});
+
+
 
 // IMPORTANT: Add detailed 404 handler
 app.use((req, res, next) => {

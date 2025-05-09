@@ -5,7 +5,7 @@ block content
     a(href="/events/new" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded")
       i(class="fas fa-plus mr-2")
       | Add Event
-      
+
     a(href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded")
       i(class="fas fa-list mr-2")
       | Upcoming Events
@@ -21,7 +21,7 @@ block content
       class="bg-gray-200 hover:bg-gray-300 py-1 px-3 rounded")
       i(class="fas fa-chevron-left mr-1")
       | Previous
-      
+
     h3(id="current-month" class="text-xl font-bold text-center") #{new Date().toLocaleDateString('en-US', {month: 'long', year: 'numeric'})}
     
     button(
@@ -31,16 +31,16 @@ block content
       class="bg-gray-200 hover:bg-gray-300 py-1 px-3 rounded")
       | Next
       i(class="fas fa-chevron-right ml-1")
-  
+
   // Loading indicator for HTMX
   div(id="calendar-loader" class="htmx-indicator text-center py-4")
     div(class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500")
-  
+
   // Calendar container
   div(id="calendar-view" hx-get="/calendar/view" hx-trigger="load" class="bg-white rounded-lg shadow-md overflow-hidden")
     // Calendar will be loaded here via HTMX
 
-    // Day events will appear here
+  // Day events will appear here
   div(id="day-events" class="mt-6")
 
 block scripts
