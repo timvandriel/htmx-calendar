@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Navigation Links</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        .link-test {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .good {
+            color: green;
+        }
+
+        .bad {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Firebase Functions Link Test</h1>
+
+    <div class="link-test">
+        <h3>Test Navigation Links</h3>
+        <ul>
+            <li><a href="/">Home (Root)</a></li>
+            <li><a href="/calendar">Calendar View</a></li>
+            <li><a href="/events/new">Add New Event</a></li>
+        </ul>
+    </div>
+
+    <div class="link-test">
+        <h3>Test API Endpoints</h3>
+        <ul>
+            <li><a href="/events/upcoming">Get Upcoming Events</a></li>
+            <li><a href="/calendar/view">Calendar View Data</a></li>
+        </ul>
+    </div>
+
+    <div class="link-test">
+        <h3>Common Issues</h3>
+        <p class="bad">If links return 404:</p>
+        <ol>
+            <li>Check if your firebase.json has correct rewrites</li>
+            <li>Ensure your views directory structure is correct</li>
+            <li>Look at Firebase Function logs for errors</li>
+            <li>Make sure your HTML links match the routes in your Express app</li>
+        </ol>
+    </div>
+
+    <script>
+        // Simple test to check if we're running under Firebase Functions
+        document.addEventListener('DOMContentLoaded', () => {
+            const testDiv = document.createElement('div');
+            testDiv.className = 'link-test';
+            testDiv.innerHTML = `
+                <h3>Environment Detection</h3>
+                <p>Current URL: <strong>${window.location.href}</strong></p>
+                <p>Hostname: <strong>${window.location.hostname}</strong></p>
+                <p>Path: <strong>${window.location.pathname}</strong></p>
+            `;
+            document.body.appendChild(testDiv);
+        });
+    </script>
+</body>
+
+</html>
