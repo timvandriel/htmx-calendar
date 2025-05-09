@@ -72,6 +72,12 @@ block scripts
           alert('Please enter a valid start date');
           return false;
         }
+
+        if (isNaN(endDate.getTime())) {
+          e.preventDefault();
+          alert('Please enter a valid end date');
+          return false;
+        }
         
         if (endDate < startDate) {
           e.preventDefault();
